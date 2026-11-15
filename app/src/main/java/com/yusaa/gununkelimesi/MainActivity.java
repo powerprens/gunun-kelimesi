@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,9 +40,12 @@ public class MainActivity extends Activity {
         String date = new SimpleDateFormat("d MMMM yyyy, EEEE", new Locale("tr")).format(new Date());
         root.addView(mk(date, 13, 0xFF555555));
 
-        TextView en = mk(w.en, 52, 0xFFFFB300);
+        TextView en = mk(w.en, 48, 0xFFFFB300);
         en.setTypeface(Typeface.DEFAULT_BOLD);
         root.addView(en);
+        if (w.okunus != null && !w.okunus.isEmpty()) {
+            root.addView(mk("(" + w.okunus + ")", 20, 0xFFCC8A00));
+        }
         root.addView(mk(w.tr, 26, Color.WHITE));
         root.addView(mk("\u201C" + w.ex + "\u201D", 15, 0xFF999999));
         root.addView(mk((w.index + 1) + " / " + w.total, 12, 0xFF444444));
@@ -61,6 +65,31 @@ public class MainActivity extends Activity {
             }).start();
         });
         root.addView(btn);
+
+        Button upd = new Button(this);
+        upd.setText("Kelimeleri g\u00FCncelle");
+        upd.setOnClickListener(v -> {
+            upd.setEnabled(false);
+            upd.setText("Denetleniyor...");
+            new Thread(() -> {
+                String res = WordProvider.updateFromNetwork(this);
+                runOnUiThread(() -> {
+                    upd.setEnabled(true);
+                    upd.setText("Kelimeleri g\u00FCncelle");
+                    if (res.startsWith("guncellendi:")) {
+                        String n = res.substring("guncellendi:".length());
+                        Toast.makeText(this, n + " kelime y\u00FCklendi, yeniden ba\u015Flat\u0131l\u0131yor", Toast.LENGTH_LONG).show();
+                        recreate();
+                    } else if (res.equals("guncel")) {
+                        Toast.makeText(this, "Kelimeler zaten g\u00FCncel", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "\u0130nternet yok ya da sunucuya ula\u015F\u0131lamad\u0131", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }).start();
+        });
+        root.addView(upd);
+
         root.addView(mk("Her sabah 07:00'de kilit ekran\u0131n otomatik de\u011Fi\u015Fir.", 12, 0xFF555555));
 
         setContentView(root);

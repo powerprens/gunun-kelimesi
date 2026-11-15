@@ -28,7 +28,7 @@ public class WallpaperHelper {
             Locale tr = new Locale("tr");
             String date = new SimpleDateFormat("d MMMM yyyy", tr).format(new Date());
 
-            float y = 700f;
+            float y = 660f;
             p.setColor(0xFF666666);
             p.setTextSize(40f);
             c.drawText("GÜNÜN KELİMESİ", W / 2f, y, p);
@@ -41,7 +41,16 @@ public class WallpaperHelper {
             p.setColor(0xFFFFB300);
             p.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
             p.setTextSize(120f);
-            y = drawWrapped(c, w.en, W / 2f, y, p, W - 160) + 50f;
+            y = drawWrapped(c, w.en, W / 2f, y, p, W - 160) + 30f;
+
+            if (w.okunus != null && !w.okunus.isEmpty()) {
+                p.setTypeface(Typeface.DEFAULT);
+                p.setColor(0xFFCC8A00);
+                p.setTextSize(56f);
+                y = drawWrapped(c, "(" + w.okunus + ")", W / 2f, y, p, W - 160) + 30f;
+            } else {
+                y += 20f;
+            }
 
             p.setTypeface(Typeface.DEFAULT);
             p.setColor(Color.WHITE);
