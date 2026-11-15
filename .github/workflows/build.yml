@@ -29,6 +29,8 @@ jobs:
 
       - name: Build debug APK
         uses: gradle/gradle-build-action@v3
+        env:
+          GK_KEYSTORE_PASS: ${{ secrets.GK_KEYSTORE_PASS }}
         with:
           gradle-version: 8.7
           arguments: assembleDebug

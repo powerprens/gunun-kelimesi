@@ -14,11 +14,22 @@ android {
         versionName '1.1'
     }
 
+    signingConfigs {
+        stable {
+            storeFile file('keystore.p12')
+            storeType 'pkcs12'
+            storePassword System.getenv('GK_KEYSTORE_PASS')
+            keyAlias '1'
+            keyPassword System.getenv('GK_KEYSTORE_PASS')
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
         }
         debug {
+            signingConfig signingConfigs.stable
         }
     }
 
