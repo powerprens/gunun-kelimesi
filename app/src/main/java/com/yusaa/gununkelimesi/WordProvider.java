@@ -12,7 +12,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class WordProvider {
     private static final String CACHE = "words-cache.json";
@@ -45,17 +47,76 @@ public class WordProvider {
         return cache;
     }
 
+    private static Word fallbackWord() {
+        return new Word("hello", "merhaba", "Hello, world!", "/h\u0259\u02c8lo\u028a/", 0, 1);
+    }
+
+    private static Word parseWord(JSONObject o, int idx, int total) throws Exception {
+        return new Word(o.getString("en"), o.getString("tr"), o.getString("ex"),
+                o.optString("okunus", ""), idx, total);
+    }
+
     public static Word today(Context ctx) {
         try {
             JSONArray arr = load(ctx);
             int total = arr.length();
             int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
             int idx = day % total;
-            JSONObject o = arr.getJSONObject(idx);
-            return new Word(o.getString("en"), o.getString("tr"), o.getString("ex"),
-                    o.optString("okunus", ""), idx, total);
+            return parseWord(arr.getJSONObject(idx), idx, total);
         } catch (Exception e) {
-            return new Word("hello", "merhaba", "Hello, world!", "/h\u0259\u02c8lo\u028a/", 0, 1);
+            return fallbackWord();
+        }
+    }
+
+    public static List<Word> all(Context ctx) {
+        List<Word> list = new ArrayList<>();
+        try {
+            JSONArray arr = load(ctx);
+            int total = arr.length();
+            for (int i = 0; i < total; i++) {
+                list.add(parseWord(arr.getJSONObject(i), i, total));
+            }
+        } catch (Exception ignored) {
+        }
+        if (list.isEmpty()) {
+            list.add(fallbackWord());
+        }
+        return list;
+    }
+
+    public static int todayIndex(Context ctx) {
+        try {
+            int total = load(ctx).length();
+            if (total <= 0) {
+                return 0;
+            }
+            int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+            return day % total;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public static Word get(Context ctx, int idx) {
+        try {
+            JSONArray arr = load(ctx);
+            int total = arr.length();
+            if (total <= 0) {
+                return fallbackWord();
+            }
+            int safe = ((idx % total) + total) % total;
+            return parseWord(arr.getJSONObject(safe), safe, total);
+        } catch (Exception e) {
+            return fallbackWord();
+        }
+    }
+
+    public static int count(Context ctx) {
+        try {
+            int len = load(ctx).length();
+            return len > 0 ? len : 1;
+        } catch (Exception e) {
+            return 1;
         }
     }
 
