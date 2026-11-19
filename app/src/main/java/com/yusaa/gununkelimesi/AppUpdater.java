@@ -16,8 +16,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.core.content.FileProvider;
-
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -465,8 +463,7 @@ public class AppUpdater {
 
     private void launchInstaller(Activity act, File apkFile) {
         try {
-            Uri uri = FileProvider.getUriForFile(
-                    act, act.getPackageName() + ".fileprovider", apkFile);
+            Uri uri = ApkProvider.getUriForFile(act, apkFile);
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(uri, "application/vnd.android.package-archive");
             intent.setClipData(ClipData.newRawUri("", uri));
